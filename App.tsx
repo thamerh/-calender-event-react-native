@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text  ,Dimensions} from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import { Card, Avatar } from 'react-native-paper';
 
 const App: React.FC = () => {
   const [items, setItems] = useState({});
+  const [dateNow, setDateNow] = useState("");
+  const [startOfWeek, setStartOfWeek] = useState("");
+  const [endOfWeek, setEndOfWeek] = useState("");
+  useEffect(() => {
+    getCurrentWeek()
+  }),[];
 
   const events = [
     {
@@ -29,12 +35,31 @@ const App: React.FC = () => {
     },
     // Add more events as needed
   ];
+  const getCurrentWeek=() =>{
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+  
+    // Calculate the start of the week (Sunday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
+  
+    // Calculate the end of the week (Saturday)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (6 - dayOfWeek));
+    // Convert the dates to string format 'YYYY-MM-DD'
+    const startOfWeekString = startOfWeek.toISOString().split('T')[0];
+    const endOfWeekString = endOfWeek.toISOString().split('T')[0];
+     setDateNow( today.toISOString().split('T')[0]);
+     setEndOfWeek(endOfWeekString);
+     setStartOfWeek(startOfWeekString);
+  }
  // Get the device height
   const windowHeight = Dimensions.get('window').height;
  // Calculate the desired height (one-fourth of the device height)
   const desiredHeight = windowHeight / 8;
   const oneWeekFromToday = new Date();
   oneWeekFromToday.setDate(oneWeekFromToday.getDate() + 7);
+
 
   const loadItems = (day) => {
     const newItems = {};
@@ -67,11 +92,11 @@ const App: React.FC = () => {
                 alignItems: 'center',
               }}>
               <Text>{item.name}</Text>
-              {/* <Avatar.Text label="J" /> */}
-              <Avatar.Image
+              <Avatar.Text label="J" />
+              {/* <Avatar.Image
                size={80} // Set the size you want
                source={require('./assets/kouskous.jpeg')} // Replace with the path to your image
-               />
+               /> */}
             </View>
           </Card.Content>
         </Card>
@@ -86,13 +111,13 @@ const App: React.FC = () => {
       </View>
 
       <Agenda
-        items={items}
-        loadItemsForMonth={loadItems}
-        selected={'2023-10-26'} // Set the initial date to display events
-        // minDate={new Date()} // Disable dates before today
-        // maxDate={oneWeekFromToday} // Disable dates more than one week from today
-        renderItem={renderItem}
-      />
+  items={items}
+  loadItemsForMonth={loadItems}
+  selected={dateNow} // Set the initial date to display events
+  minDate={startOfWeek}    // Set the minimum selectable date
+  maxDate={endOfWeek}      // Set the maximum selectable date
+  renderItem={renderItem}
+/>
     </View>
   );
 };
